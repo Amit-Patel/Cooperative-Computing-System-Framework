@@ -36,7 +36,7 @@ class Node:
     # cid - cluster to which it belongs
     # ctid - current task executing on the node
     # stat - status of the node, ACTIVE(1), STANDBY(0), WAITING(-1)
-    
+											#0 should be for nodes running low priority
     def __init__(self,nid,cid,ctid,stat):
         self.nid = nid
         self.cid = cid
@@ -80,14 +80,16 @@ class Task:
     #   at - arrival time
     #   et - estimated execution time
     #   req - resource requirements (number of nodes)
+	#	nlist - list of nodes running the task
     
-    def __init__(self,tid,pr,at,et,req):
+    def __init__(self,tid,pr,at,et,req,nlist):
         self.tid = tid
         self.pr = pr
         self.at = at
         self.et = et
         self.req = req
-
+		self.nlist = nlist
+		
     def set_taskid(self, value):
         self.tid = value
 
@@ -103,7 +105,10 @@ class Task:
     def set_req(self,value):
         self.req = value
 
-    def get_taskid(self):
+	def set_nodelist(self,nlist):
+		self.nlist = nlist
+		
+	def get_taskid(self):
         return self.tid
 
     def get_taskpriority(self):
@@ -117,6 +122,9 @@ class Task:
     
     def get_req(self):
         return self.req
+		
+	def get_nlist(self):
+		return self.nlist;
 
     def displaytask(self):
     	print "Task id:\t", self.get_taskid()
