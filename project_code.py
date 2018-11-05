@@ -5,7 +5,7 @@ class Cluster:
     
     def __init__(self,cid,nlist):
         self.cid = cid
-        self.nlist = []
+        self.nlist = nlist
 
     def set_clusterid(self,value):
         self.clusterid = value
@@ -18,13 +18,24 @@ class Cluster:
 
     def get_cluster(self):
         return self.nlist
+
+    def displaynodelist(self):
+    	for i in self.nlist:
+    		print ("Node:\t",i)
+
+    def displaycluster(self):
+    	print "Cluster id:\t", self.get_clusterid()
+    	print "List of nodes:"
+    	self.displaynodelist()
+
+    	
     
 class Node:
 
     # nid - node id
     # cid - cluster to which it belongs
     # ctid - current task executing on the node
-    # stat - status of the node, ACTIVE(2), STANDBY(1), WAITING(0)
+    # stat - status of the node, ACTIVE(1), STANDBY(0), WAITING(-1)
     
     def __init__(self,nid,cid,ctid,stat):
         self.nid = nid
@@ -55,6 +66,12 @@ class Node:
 
     def get_nodestatus(self):
         return self.stat
+
+    def displaynode(self):
+    	print "Node id:\t", self.get_nodeid()
+    	print "Cluster id:\t", self.get_clusterid()
+    	print "Current task id:\t", self.get_currenttaskid()
+    	print "Status:\t", self.get_nodestatus()
 
 class Task:
 
@@ -100,6 +117,14 @@ class Task:
     
     def get_req(self):
         return self.req
+
+    def displaytask(self):
+    	print "Task id:\t", self.get_taskid()
+    	print "Arrival Time:\t", self.get_arrivaltime()
+    	print "Execution Time:\t", self.get_et()
+    	print "Priority:\t", self.get_taskpriority()
+    	print "Resources:\t", self.get_req(), "\n"
+
 
 
 t = Task(1,0,9,3,2)
