@@ -21,11 +21,11 @@ class Cluster:
 
     def displaynodelist(self):
     	for i in self.nlist:
-    		print ("Node:\t",i)
+    	    print ("Node:\t",i)
 
     def displaycluster(self):
-    	print "Cluster id:\t", self.get_clusterid()
-    	print "List of nodes:"
+    	print ("Cluster id:\t", self.get_clusterid())
+    	print ("List of nodes:")
     	self.displaynodelist()
 
     	
@@ -68,10 +68,10 @@ class Node:
         return self.stat
 
     def displaynode(self):
-    	print "Node id:\t", self.get_nodeid()
-    	print "Cluster id:\t", self.get_clusterid()
-    	print "Current task id:\t", self.get_currenttaskid()
-    	print "Status:\t", self.get_nodestatus()
+    	print ("Node id:\t", self.get_nodeid())
+    	print ("Cluster id:\t", self.get_clusterid())
+    	print ("Current task id:\t", self.get_currenttaskid())
+    	print ("Status:\t", self.get_nodestatus())
 
 class Task:
 
@@ -88,7 +88,7 @@ class Task:
         self.at = at
         self.et = et
         self.req = req
-		self.nlist = nlist
+        self.nlist = nlist
 		
     def set_taskid(self, value):
         self.tid = value
@@ -105,10 +105,10 @@ class Task:
     def set_req(self,value):
         self.req = value
 
-	def set_nodelist(self,nlist):
-		self.nlist = nlist
-		
-	def get_taskid(self):
+    def set_nodelist(self,nlist):
+        self.nlist = nlist
+	
+    def get_taskid(self):
         return self.tid
 
     def get_taskpriority(self):
@@ -123,18 +123,19 @@ class Task:
     def get_req(self):
         return self.req
 		
-	def get_nlist(self):
-		return self.nlist;
+    def get_nlist(self):
+        return self.nlist
 
     def displaytask(self):
-    	print "Task id:\t", self.get_taskid()
-    	print "Arrival Time:\t", self.get_arrivaltime()
-    	print "Execution Time:\t", self.get_et()
-    	print "Priority:\t", self.get_taskpriority()
-    	print "Resources:\t", self.get_req(), "\n"
+        print ("Task id:\t", self.get_taskid())
+        print ("Arrival Time:\t", self.get_arrivaltime())
+        print ("Execution Time:\t", self.get_et())
+        print ("Priority:\t", self.get_taskpriority())
+        print ("Resources:\t", self.get_req())
+        print ("Node list:\t", self.nlist, "\n")
 
 
 
-t = Task(1,0,9,3,2)
-print (t.get_et())
+#t = Task(1,0,9,3,2)
+#print (t.get_et())
 
