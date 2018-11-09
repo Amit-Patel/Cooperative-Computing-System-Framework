@@ -23,10 +23,10 @@ globaltime =0
 
 for i in range(t):
 
-	a = lines[2+i]
-	b = lines[2+i+1]
-	c = lines[2+i+2]
-	d = lines[2+i+3]
+	a = lines[2+i*4]
+	b = lines[2+i*4+1]
+	c = lines[2+i*4+2]
+	d = lines[2+i*4+3]
 	e = Task(i,c,a,b,d,[])
 	task_queue.append(e)
 
@@ -42,7 +42,8 @@ for i in task_queue:
 	i.displaytask()
 
 while(len(task_queue)!=0 or len(assigned_tasks)!=0):
-
+	#if(globaltime==4):
+	#	break
 	#checking to assign new task
 	for i in task_queue:
 		
@@ -50,7 +51,8 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 		if(i.get_arrivaltime()>globaltime):
 			break
 		
-		else:
+		#for high priority task
+		elif(i.get_taskpriority() == 0):
 			# remove task from incoming task list
 			task_queue.remove(i)
 			unassigned_node_count = 0
@@ -74,9 +76,10 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 				waiting_queue.append(i)
 
 			else:
+				activelist = []
 				print ("added task")
 				assigned_tasks.append(i)
-				i.set_nodelist(templist)
+				#i.set_nodelist(templist)
 				c = Cluster(random.randint(1,100),templist)
 				cluster_list.append(c)
 				
@@ -89,12 +92,17 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 					if(count < len(templist)/2):
 						node_list[k].set_currenttaskid(i.get_taskid())
 						node_list[k].set_status(1)
-						
+						activelist.append(k);
 					#second half is in standby
 					#else:
 					#	node_list[k].set_status(0)
+					i.set_nodelist(activelist)
 					count +=1
-					
+		#for low priority task push it into waiting_queue
+		else:
+			task_queue.remove(i)
+			waiting_queue.append(i)
+			
 	rem = []						
 	#removing clusters after execution
 	for i in assigned_tasks:
@@ -122,8 +130,9 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 							node_list[k].set_clusterid(0)
 						break	
 						
-			#remove task from task_list
+			#rem contains the list of tasks to remove from task_list
 			rem.append(i)
+			
 	for k in rem:
 		assigned_tasks.remove(k)
 	
@@ -132,24 +141,94 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 	#assumed that high priority tasks are not present
 	for i in waiting_queue:
 		count = 0
+		#contains list of nodes selected for the task
 		templist = []
 		
-		#find free nodes to run task
-		for j in node_list:
-
-			if(j.get_nodestatus() == -1):
-				count+=1
-				templist.append(j.get_nodeid())
+		#low priority
+		if(i.get_taskpriority() == 1):
+			print("LOW PT TASK FROM WAAIT QUUEE")
+			for j in node_list:
+				
+				if(j.get_nodestatus() == -1):
+					count+=1
+					templist.append(j.get_nodeid())
+			print("NODES AVAILABLE", templist)
 			
-			if(count == i.get_req()):
-				for k in templist:
+			if(count >= i.get_req()):
+				
+				for k in templist[:i.get_req()]:
 					node_list[k].set_currenttaskid(i.get_taskid())
 					node_list[k].set_status(0)
-
-				i.set_nodelist(templist)
+				
+				i.set_nodelist(templist[:i.get_req()])
+				i.set_arrivaltime(globaltime)
 				assigned_tasks.append(i)
 				waiting_queue.remove(i)
-				break
+				
+		#high priority
+		else:
+			print("HP TASK FROM WAITING QUEUE")
+			for j in node_list:
+				if(j.get_nodestatus() == -1 and j.get_clusterid() == 0):
+					count+=1
+					templist.append(j.get_nodeid())
+			print(count,templist)
+			if(count >= 2*i.get_req()):
+				print("ENOUGH TIMES")
+				#contains set of nodes running the task
+				activelist = []
+				for k in templist[:i.get_req()]:
+					node_list[k].set_currenttaskid(i.get_taskid())
+					node_list[k].set_status(1)
+						
+					activelist.append(k);
+					
+				c = Cluster(random.randint(1,100),templist[:(i.get_req()*2)])
+				cluster_list.append(c)
+				
+				for k in templist[:2*i.get_req()]:
+					node_list[k].set_clusterid(c.get_clusterid())
+				
+				i.set_nodelist(activelist)
+				i.set_arrivaltime(globaltime)
+				assigned_tasks.append(i)
+				waiting_queue.remove(i)
+				print("REMOVING TASK FROM WAITING QUEUE", waiting_queue)
+		
+		#find free nodes to run task
+		#for j in node_list:
+
+			
+			# if(j.get_nodestatus() == -1):
+				
+				#for low priority
+				# if(i.get_taskpriority() == 1):
+					# count+=1
+					# templist.append(j.get_nodeid())
+
+				# high priority
+				# priority is high and node is not part of  cluster
+				# elif(j.get_clusterid() == 0):
+					# count+=1
+					# templist.append(j.get_nodeid())
+
+				
+				
+			#for low priority task
+			# if(count == i.get_req()):
+				# for k in templist:
+					# node_list[k].set_currenttaskid(i.get_taskid())
+					# node_list[k].set_status(0)
+
+				# i.set_nodelist(templist)
+				# assigned_tasks.append(i)
+				# waiting_queue.remove(i)
+				# break
+		
+		
+			# elif(count == 2*i.get_req()):
+		
+			
    
 	print ("TIME  = ",globaltime)
 
