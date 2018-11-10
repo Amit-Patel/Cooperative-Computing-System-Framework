@@ -37,11 +37,12 @@ class Node:
     # ctid - current task executing on the node
     # stat - status of the node, ACTIVE(1), STANDBY(0), WAITING(-1)
 											#0 should be for nodes running low priority
-    def __init__(self,nid,cid,ctid,stat):
+    def __init__(self,nid,cid,ctid,stat,failed):
         self.nid = nid
         self.cid = cid
         self.ctid = ctid
         self.stat = stat
+        self.failed = failed
 
     def set_nodeid(self,value):
         self.nid = value
@@ -55,6 +56,9 @@ class Node:
     def set_status(self, value):
         self.stat = value
 
+    def set_failed(self, failed):
+        self.failed = failed
+		
     def get_nodeid(self):
         return self.nid
     
@@ -67,11 +71,15 @@ class Node:
     def get_nodestatus(self):
         return self.stat
 
+    def get_failed(self):
+        return self.failed
+		
     def displaynode(self):
     	print ("Node id:\t", self.get_nodeid())
     	print ("Cluster id:\t", self.get_clusterid())
     	print ("Current task id:\t", self.get_currenttaskid())
     	print ("Status:\t", self.get_nodestatus())
+
 
 class Task:
 

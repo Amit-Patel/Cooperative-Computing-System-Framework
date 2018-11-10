@@ -35,14 +35,14 @@ task_queue.sort(key=operator.attrgetter('at','pr'))
 # initializing all nodes
 
 for i in range(n):
-	f = Node(i,0,-1,-1)
+	f = Node(i,0,-1,-1,0)
 	node_list.append(f)
 
 for i in task_queue:
 	i.displaytask()
 
-fail_node = input("Enter node id to fail:")
-fail_time = input("Enter time for failure:")
+fail_node = int(input("Enter node id to fail:"))
+fail_time = int(input("Enter time for failure:"))
 temp_task = 0
 assigned_task_index = 0
 
@@ -53,15 +53,18 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 
 	# simulating time of failure
 	if(globaltime == fail_time):
+	
+		# failing the node
+		node_list[fail_node].set_failed(1)
 
 		# checking for index out of range
 		if(fail_node < len(node_list)):
-
+			print("node failure detected");
 			# selecting the failed node
 			temp_node = node_list[fail_node]
 			
 			for k in assigned_tasks:
-				if (k.get_taskid() == temp_node.get_taskid()):
+				if (k.get_taskid() == temp_node.get_currenttaskid()):
 					n_list = k.get_nlist()
 					n_list.remove(fail_node)
 					k.set_nodelist(n_list)
@@ -69,10 +72,12 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 					break
 
 			# if failed node is running a task
-			if(temp_node.get_taskid()!= -1):
+			if(temp_node.get_currenttaskid()!= -1):
 
 				# priority of the task running on node
-				task_pr = temp_node.get_taskpriority()
+				
+				#task_pr = temp_node.get_taskpriority()
+				task_pr = assigned_tasks[assigned_task_index].get_taskpriority()
 				
 				# if task is of high priority
 				if(task_pr == 0):
@@ -83,7 +88,7 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 						if(i.get_clusterid() == temp_node.get_clusterid()):
 							
 							# removing the node from the cluster's nlist
-							n_list = i.get_nlist()
+							n_list = i.get_cluster()
 							n_list.remove(fail_node)
 							i.initialize_cluster(n_list)
 								
@@ -96,7 +101,7 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 
 					# extracting the task id of the standby node
 
-					recovery_task_id = node_list[recovery_node_index].get_taskid()
+					recovery_task_id = node_list[recovery_node_index].get_currenttaskid()
 
 					# adding the recovery node index to task's nlist
 					
@@ -124,12 +129,12 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 
 					# assigning failed node task to the recovery node
 
-					node_list[recovery_node_index].set_currenttaskid(temp_node.get_taskid())
+					node_list[recovery_node_index].set_currenttaskid(temp_node.get_currenttaskid())
 					node_list[recovery_node_index].set_status(1)
 
 				else:
 
-					recovery_task_id = node_list[fail_node].get_taskid()
+					recovery_task_id = node_list[fail_node].get_currenttaskid()
 					
 
 					# if it is an active task
@@ -142,19 +147,24 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 							if(i.get_taskid() == recovery_task_id):
 								temp_task = i
 								break
-
+						
+						#check if node belongs to a cluster and remove it
+						if(node_list[fail_node].get_clusterid() != 0):
+							for i in cluster_list:
+								if(i.get_clusterid() == node_list[fail_node].get_clusterid()):
+									n_list = i.get_cluster()
+									n_list.remove(fail_node)
+									i.initialize_cluster(n_list)
+									break
+						
 						# relocate task running on failed node to the waiting queue
 
 						assigned_tasks.remove(temp_task)
-						temp_task.set_et(temp_task.get_et()-(globaltime - temp_task.get_at()))
+						temp_task.set_et(temp_task.get_et()-(globaltime - temp_task.get_arrivaltime()))
+						temp_task.set_req(1)
 						waiting_queue.append(temp_task)
 
-
-				n_list = temp_task.get_nlist()
-				n_list.remove(fail_node)
-				temp_task.set_nodelist(n_list)
-
-			node_list.remove(temp_node)
+			#node_list.remove(temp_node)
 
 
 
@@ -173,8 +183,8 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 			# traverse through list of nodes to find available nodes
 			for j in node_list:
 				# if node status is waiting, it is available	
-				if(j.get_nodestatus() == -1):
-					print ("found free node")
+				if(j.get_nodestatus() == -1 and j.get_failed() == 0):
+					#print ("found free node")
 					templist.append(j.get_nodeid())
 					unassigned_node_count +=1
 				# if req == availability, don't go further
@@ -185,7 +195,7 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 			# if enough nodes are not available, move task to waiting queue
 			#high priority tasks double required nodes for backup
 			if((2*i.get_req())>unassigned_node_count):
-				print ("Not enough nodes")
+				#print ("Not enough nodes")
 				waiting_queue.append(i)
 
 			else:
@@ -262,7 +272,7 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 			print("LOW PT TASK FROM WAAIT QUUEE")
 			for j in node_list:
 				
-				if(j.get_nodestatus() == -1):
+				if(j.get_nodestatus() == -1 and j.get_failed() == 0):
 					count+=1
 					templist.append(j.get_nodeid())
 			print("NODES AVAILABLE", templist)
@@ -280,9 +290,9 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 				
 		#high priority
 		else:
-			print("HP TASK FROM WAITING QUEUE")
+			#print("HP TASK FROM WAITING QUEUE")
 			for j in node_list:
-				if(j.get_nodestatus() == -1 and j.get_clusterid() == 0):
+				if(j.get_nodestatus() == -1 and j.get_clusterid() == 0 and j.get_failed() == 0):
 					count+=1
 					templist.append(j.get_nodeid())
 			print(count,templist)
@@ -313,7 +323,8 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 
 	print("NODES----------")
 	for k in node_list:
-		k.displaynode()
+		if(k.get_failed() == 0):
+			k.displaynode()
 
 	print("TASKS----------")
 	for k in assigned_tasks:
