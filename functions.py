@@ -6,8 +6,7 @@ from numpy import *
 
 lines = loadtxt("sample.txt", comments="#", delimiter=",", unpack=False)
 lines = lines.astype(numpy.int64)
-print (len(lines))
-print (lines)
+
 
 #n = int(input("Enter number of nodes for Resource Manager:"))
 #t = int(input("Enter number of tasks:"))
@@ -59,7 +58,7 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 
 		# checking for index out of range
 		if(fail_node < len(node_list)):
-			print("node failure detected");
+			
 			# selecting the failed node
 			temp_node = node_list[fail_node]
 			
@@ -184,23 +183,20 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 			for j in node_list:
 				# if node status is waiting, it is available	
 				if(j.get_nodestatus() == -1 and j.get_failed() == 0):
-					#print ("found free node")
+					
 					templist.append(j.get_nodeid())
 					unassigned_node_count +=1
 				# if req == availability, don't go further
 				if(unassigned_node_count == 2*i.get_req()):
-					print ("found enough nodes")
 					break
 
 			# if enough nodes are not available, move task to waiting queue
 			#high priority tasks double required nodes for backup
 			if((2*i.get_req())>unassigned_node_count):
-				#print ("Not enough nodes")
 				waiting_queue.append(i)
 
 			else:
 				activelist = []
-				print ("added task")
 				assigned_tasks.append(i)
 				#i.set_nodelist(templist)
 				c = Cluster(random.randint(1,100),templist)
@@ -230,7 +226,6 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 	#removing clusters after execution
 	for i in assigned_tasks:
 		if(i.get_arrivaltime() + i.get_et() == globaltime):
-			print("AT TIME T=",globaltime)
 			#reset attributes of nodes running the task
 			for j in i.get_nlist():
 				node_list[j].set_currenttaskid(-1)
@@ -238,7 +233,6 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 			
 			#if task in high priority
 			if(i.get_taskpriority() == 0):
-				print(i.get_nlist())
 				nid = node_list[i.get_nlist()[0]]
 				
 				#find the cluster running the task using cluster id
@@ -269,13 +263,13 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 		
 		#low priority
 		if(i.get_taskpriority() == 1):
-			print("LOW PT TASK FROM WAAIT QUUEE")
+			
 			for j in node_list:
 				
 				if(j.get_nodestatus() == -1 and j.get_failed() == 0):
 					count+=1
 					templist.append(j.get_nodeid())
-			print("NODES AVAILABLE", templist)
+			
 			
 			if(count >= i.get_req()):
 				
@@ -290,14 +284,14 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 				
 		#high priority
 		else:
-			#print("HP TASK FROM WAITING QUEUE")
+			
 			for j in node_list:
 				if(j.get_nodestatus() == -1 and j.get_clusterid() == 0 and j.get_failed() == 0):
 					count+=1
 					templist.append(j.get_nodeid())
-			print(count,templist)
+			
 			if(count >= 2*i.get_req()):
-				print("ENOUGH TIMES")
+				
 				#contains set of nodes running the task
 				activelist = []
 				for k in templist[:i.get_req()]:
@@ -316,7 +310,7 @@ while(len(task_queue)!=0 or len(assigned_tasks)!=0):
 				i.set_arrivaltime(globaltime)
 				assigned_tasks.append(i)
 				waiting_queue.remove(i)
-				print("REMOVING TASK FROM WAITING QUEUE", waiting_queue)
+				
 			
    
 	print ("TIME  = ",globaltime)
